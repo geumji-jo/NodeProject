@@ -95,3 +95,18 @@ app.get('/edit/:id', async (req, res) => {
   res.render('edit.ejs',{ result : result})
   console.log(result)
 })
+
+// 수정기능
+app.post('/edit', async (req, res) => {
+  try {
+    // 파라미터로 요청한 id에 해당하는 id를 db에서 찾아옴
+    await db.collection('post').updateOne({_id: new ObjectId(req.body.id)}, 
+    {$set :{title : req.body.title, content:req.body.content}})
+    console.log(req.body)
+    res.redirect('/list')
+
+  } catch (error) {
+    console.log(error)
+    res.status(404).send('잘못된 url접근')
+  }
+})
