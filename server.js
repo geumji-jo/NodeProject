@@ -87,6 +87,11 @@ try {
   console.log(error)
   res.status(404).send('잘못된 url접근')
 }
+})
 
-
+app.get('/edit/:id', async (req, res) => {
+  // 파라미터로 요청한 id에 해당하는 id를 db에서 찾아옴
+  let result = await db.collection('post').findOne({_id: new ObjectId(req.params.id)})
+  res.render('edit.ejs',{ result : result})
+  console.log(result)
 })
