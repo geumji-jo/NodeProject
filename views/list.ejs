@@ -25,12 +25,20 @@
             <% }%>
 
         <script>
-            
-            document.querySelectorAll('.delete')[0].addEventListener('click', function(e){
+            for(let i=0; i < '<%= 글목록.length %>'; i++) {
+                document.querySelectorAll('.delete')[i].addEventListener('click', function(e){
                 fetch('/delete?docid='+ e.target.dataset.id,{
                     method :'DELETE'
                 })
-            })
+                .then((r)=>r.text())
+                .then((r)=>{ 
+                    e.target.parentElement.parentElement.style.display='none'
+                 })
+                })
+            }
+        
+
+
         </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>

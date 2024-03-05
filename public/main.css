@@ -8,6 +8,9 @@ body {
   }
   .nav a {
     margin-right: 10px;
+    text-decoration-line: none;
+    color: black;
+    font-size: large;
   }
   .logo {
     font-weight: bold;
