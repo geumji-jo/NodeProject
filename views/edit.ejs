@@ -12,7 +12,8 @@
     <%- include('nav.ejs') %>
         <!-- 수정기능은 put Method쓰는게 좋은 관습 : ajax나 외부라이브러리 사용 -->
         <!-- <form>태그에서는 원래 get, post요청만 가능 -->
-        <form class="form-box" action="/edit" method="post">
+        <!-- _method=PUT으로 action뒤에 적어주면 method가 post말고 put으로 작용됨 = 서버에설정해둠 -->
+        <form class="form-box" action="/edit?_method=PUT" method="post">
             <h4>수정하기</h4>
             <input type="hidden" name="id" value="<%= result._id %>">
             <input name="title" value="<%= result.title %>">

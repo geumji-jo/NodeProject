@@ -2,7 +2,9 @@ const express = require('express')
 const app = express();
 // 몽고db 연결
 const { MongoClient, ObjectId } = require('mongodb');
+const methodOverride = require('method-override');
 
+app.use(methodOverride('_method'));
 // css폴더를 server.js에 등록해두면 폴더안의 파일들 html에서 사용가능
 app.use(express.static(__dirname + '/public'))
 // view engine이 ejs라고 설정해줌
@@ -97,7 +99,21 @@ app.get('/edit/:id', async (req, res) => {
 })
 
 // 수정기능
-app.post('/edit', async (req, res) => {
+app.put('/edit', async (req, res) => {
+ // await db.collection('post').updateMany({like : {$gt : 10}}, 
+                                                  //$gt는 Greater than약자임 >랑 같음
+                                                  //$gte는 greater than or equal to 약자임 >=랑 같음
+                                                  //$lt는 little than약자임 <랑 같음
+                                                  //$lte는 little than or equal약자임 <=랑 같음
+                                                  //$eq는 equal약자임 ==랑 같음
+                                                  //$ne는 not equal약자임 !=랑 같음
+                                                  // 바꾸고 싶은 대상의 조건을 줄 수 있음
+   // {$inc :{like : -2 }} )
+  //inc : 기존에 가지고 있는 값에 +/-하라는 뜻
+  //mul : 기존에 가지고 있는 값에 곱하라는 뜻
+  //unset : 기존에 가지고 있는 값을 삭제하라는 뜻(필드값삭제)
+ 
+ 
   try {
     // 파라미터로 요청한 id에 해당하는 id를 db에서 찾아옴
     await db.collection('post').updateOne({_id: new ObjectId(req.body.id)}, 
