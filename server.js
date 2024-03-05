@@ -126,3 +126,9 @@ app.put('/edit', async (req, res) => {
     res.status(404).send('잘못된 url접근')
   }
 })
+
+app.get('/abc', async (req, res) => {
+  console.log('안녕')
+  console.log(req.body)
+  console.log(req.query)
+})
