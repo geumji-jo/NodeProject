@@ -131,3 +131,18 @@ app.delete('/delete', async (req, res) => {
 await db.collection('post').deleteOne({_id : new ObjectId(req.query.docid)})
 res.send('삭제완료')
 })
+
+app.get('/list/:id', async (req, res) => {
+  // .skip(5).limit(5). : 위에서부터 5개는 스킵하고 5개 가져오는 명령
+  let result =  await db.collection('post').find().skip(5 * (req.params.id -1)).limit(5).toArray()
+    res.render('list.ejs',{ 글목록 : result})
+})
+
+app.get('/list/next/:id', async (req, res) => {
+  // .skip(5).limit(5). : 위에서부터 5개는 스킵하고 5개 가져오는 명령
+  let result =  await db.collection('post')
+  // _id가 이거보다 큰것만 다 찾아오라는 명령
+  .find({_id : {$gt : new ObjectId(req.params.id)}})
+  .limit(5).toArray()
+    res.render('list.ejs',{ 글목록 : result})
+})
