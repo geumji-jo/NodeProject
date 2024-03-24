@@ -3,6 +3,7 @@ const app = express();
 // 몽고db 연결
 const { MongoClient, ObjectId, MongoDBNamespace } = require('mongodb');
 const methodOverride = require('method-override');
+const bcrypt = require('bcrypt')
 
 app.use(methodOverride('_method'));
 // css폴더를 server.js에 등록해두면 폴더안의 파일들 html에서 사용가능
@@ -19,18 +20,24 @@ app.use(express.urlencoded({extended:true}))
 const session = require('express-session')
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
+const MongoStore = require('connect-mongo')
 
 app.use(passport.initialize())
 app.use(session({
   secret: '암호화에 쓸 비번',
   resave : false,
   saveUninitialized : false,  // 로그인을 안해도 session을 만들것인지...
-  cookie : { maxAge : 60 * 60 * 1000 }
+  cookie : { maxAge : 60 * 60 * 1000 },
+  store : MongoStore.create({
+    mongoUrl : 'mongodb://geumji:geumji1234@ac-k3j56hy-shard-00-00.njmuxzp.mongodb.net:27017,ac-k3j56hy-shard-00-01.njmuxzp.mongodb.net:27017,ac-k3j56hy-shard-00-02.njmuxzp.mongodb.net:27017/?ssl=true&replicaSet=atlas-r7hu42-shard-0&authSource=admin&retryWrites=true&w=majority&appName=geumji',
+    dbName : 'NodeProject'
+  })
 }))
 app.use(passport.session()) 
 
 let db
 //const url = 'mongodb+srv://geumji:geumji1234@geumji.njmuxzp.mongodb.net/?retryWrites=true&w=majority&appName=geumji'
+
 // 스타벅스용 url
 const url='mongodb://geumji:geumji1234@ac-k3j56hy-shard-00-00.njmuxzp.mongodb.net:27017,ac-k3j56hy-shard-00-01.njmuxzp.mongodb.net:27017,ac-k3j56hy-shard-00-02.njmuxzp.mongodb.net:27017/?ssl=true&replicaSet=atlas-r7hu42-shard-0&authSource=admin&retryWrites=true&w=majority&appName=geumji'
 new MongoClient(url).connect().then((client)=>{
@@ -167,7 +174,7 @@ passport.use(new LocalStrategy(async (입력한아이디, 입력한비번, cb) =
     if (!result) {
       return cb(null, false, { message: '아이디 DB에 없음' })
     }
-    if (result.password == 입력한비번) {
+    if (await bcrypt.compare(입력한비번,result.password)) {
       return cb(null, result)
     } else {
       return cb(null, false, { message: '비번불일치' });
@@ -212,3 +219,16 @@ app.post('/login', async (req, res, next) => {
 })(req, res, next)
 })
 
+app.get('/register',(req, res)=>{
+  res.render('register.ejs')
+})
+
+app.post('/register',async (req, res)=>{
+
+  let hash = await bcrypt.hash(req.body.password, 10)
+  await db.collection('user').insertOne({
+  username : req.body.username,
+  password : hash
+})
+ res.redirect('/')
+})
