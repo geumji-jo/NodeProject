@@ -16,6 +16,18 @@ app.set('view engine', 'ejs')
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
+const session = require('express-session')
+const passport = require('passport')
+const LocalStrategy = require('passport-local')
+
+app.use(passport.initialize())
+app.use(session({
+  secret: '암호화에 쓸 비번',
+  resave : false,
+  saveUninitialized : false
+}))
+
+app.use(passport.session()) 
 
 let db
 //const url = 'mongodb+srv://geumji:geumji1234@geumji.njmuxzp.mongodb.net/?retryWrites=true&w=majority&appName=geumji'
@@ -145,4 +157,34 @@ app.get('/list/next/:id', async (req, res) => {
   .find({_id : {$gt : new ObjectId(req.params.id)}})
   .limit(5).toArray()
     res.render('list.ejs',{ 글목록 : result})
+})
+
+passport.use(new LocalStrategy(async (입력한아이디, 입력한비번, cb) => {
+  let result = await db.collection('user').findOne({ username : 입력한아이디})
+  if (!result) {
+    return cb(null, false, { message: '아이디 DB에 없음' })
+  }
+  if (result.password == 입력한비번) {
+    return cb(null, result)
+  } else {
+    return cb(null, false, { message: '비번불일치' });
+  }
+}))
+
+
+app.get('/login', async (req, res) => {
+
+    res.render('login.ejs')
+})
+
+app.post('/login', async (req, res) => {
+  passport.authenticate('local', (error, user, info)=>{
+    if (error) return res.status(500).json(error)
+    if (!user) return res.status(401).json(info.message)
+    req.logIn(user, (error)=> {
+      if(error) return next(error)
+      res.redirect('/')
+    })
+  })(req, res, next)
+  res.render('login.ejs')
 })
